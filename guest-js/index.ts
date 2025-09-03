@@ -17,20 +17,24 @@ interface CaptureRequest {
   groups?: GroupObject
   timestamp?: string
   anonymous?: boolean
+  [key: string]: unknown
 }
 
 interface IdentifyRequest {
   distinct_id: string
   properties?: Properties
+  [key: string]: unknown
 }
 
 interface AliasRequest {
   distinct_id: string
   alias: string
+  [key: string]: unknown
 }
 
 interface BatchCaptureRequest {
   events: CaptureRequest[]
+  [key: string]: unknown
 }
 
 /**

@@ -58,14 +58,14 @@ impl PostHogClientWrapper {
         // Always add device_id as a property
         event
             .insert_prop("$device_id", &self.device_id)
-            .map_err(|e| crate::error::Error::PostHogClient(e))?;
+            .map_err(crate::error::Error::PostHogClient)?;
 
         // Add custom properties
         if let Some(properties) = request.properties {
             for (key, value) in properties {
                 event
                     .insert_prop(key, value)
-                    .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                    .map_err(crate::error::Error::PostHogClient)?;
             }
         }
 
@@ -80,13 +80,13 @@ impl PostHogClientWrapper {
         if let Some(timestamp) = request.timestamp {
             event
                 .set_timestamp(timestamp)
-                .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                .map_err(crate::error::Error::PostHogClient)?;
         }
 
         self.client
             .capture(event)
             .await
-            .map_err(|e| crate::error::Error::PostHogClient(e))?;
+            .map_err(crate::error::Error::PostHogClient)?;
         Ok(())
     }
 
@@ -108,14 +108,14 @@ impl PostHogClientWrapper {
             // Always add device_id as a property
             event
                 .insert_prop("$device_id", &self.device_id)
-                .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                .map_err(crate::error::Error::PostHogClient)?;
 
             // Add custom properties
             if let Some(properties) = request.properties {
                 for (key, value) in properties {
                     event
                         .insert_prop(key, value)
-                        .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                        .map_err(crate::error::Error::PostHogClient)?;
                 }
             }
 
@@ -130,7 +130,7 @@ impl PostHogClientWrapper {
             if let Some(timestamp) = request.timestamp {
                 event
                     .set_timestamp(timestamp)
-                    .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                    .map_err(crate::error::Error::PostHogClient)?;
             }
 
             events.push(event);
@@ -139,7 +139,7 @@ impl PostHogClientWrapper {
         self.client
             .capture_batch(events)
             .await
-            .map_err(|e| crate::error::Error::PostHogClient(e))?;
+            .map_err(crate::error::Error::PostHogClient)?;
         Ok(())
     }
 
@@ -152,11 +152,11 @@ impl PostHogClientWrapper {
             let mut event = Event::new("$create_alias", &distinct_id);
             event
                 .insert_prop("alias", alias)
-                .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                .map_err(crate::error::Error::PostHogClient)?;
             self.client
                 .capture(event)
                 .await
-                .map_err(|e| crate::error::Error::PostHogClient(e))?;
+                .map_err(crate::error::Error::PostHogClient)?;
         }
         Ok(())
     }
