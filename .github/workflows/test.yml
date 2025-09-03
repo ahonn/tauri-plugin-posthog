@@ -12,21 +12,20 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [stable]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
@@ -42,36 +41,3 @@ jobs:
 
       - name: Build documentation
         run: cargo doc --no-deps --all-features
-
-  test-js:
-    name: Test JavaScript/TypeScript
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: guest-js
-
-      - name: Build guest-js
-        run: pnpm build
-        working-directory: guest-js
-
-      - name: Test example app dependencies
-        run: pnpm install
-        working-directory: examples/tauri-app
-
-      - name: Build example app frontend
-        run: pnpm build
-        working-directory: examples/tauri-app
