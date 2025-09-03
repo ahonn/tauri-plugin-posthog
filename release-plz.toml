@@ -1,18 +1,33 @@
 [workspace]
-# Enable semver checks to ensure compatibility
-semver_check = true
-# Allow dirty working directory for release
-allow_dirty = false
-# Create GitHub release
+# Enable creating GitHub releases
 git_release_enable = true
-# Use conventional commits for changelog
+# Customize changelog
 changelog_update = true
 
-[[package]]
-name = "tauri-plugin-posthog"
-# Changelog template
-changelog_include = ["feat", "fix", "perf", "refactor"]
-# Git tag template
+# Git configuration
+git_tag_enable = true
 git_tag_name = "v{{ version }}"
-# Dependencies update strategy
-dependencies_update = true
+
+# Changelog configuration
+[changelog]
+header = """
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+"""
+body = """
+{% if version %}\\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\\
+    ## [Unreleased]
+{% endif %}\\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/ahonn/tauri-plugin-posthog/commit/{{ commit.id }}))
+    {%- endfor %}
+{% endfor %}\\n
+"""
+trim = true
