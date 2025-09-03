@@ -66,67 +66,6 @@ await PostHog.captureAnonymous('page_view', {
 });
 ```
 
-## Development
-
-### Prerequisites
-
-- Rust 1.77.2+
-- Node.js 20+
-- pnpm 8+
-
-### Setup
-
-1. Clone the repository
-2. Install pre-commit hooks (optional but recommended):
-
-```bash
-# Install pre-commit (if not already installed)
-pip install pre-commit
-# or
-brew install pre-commit
-
-# Install the hooks
-./scripts/install-hooks.sh
-```
-
-3. Build the plugin:
-
-```bash
-# Build Rust plugin
-cargo build
-
-# Build TypeScript API
-cd guest-js
-pnpm install
-pnpm build
-```
-
-### Running the Example
-
-```bash
-cd examples/tauri-app
-pnpm tauri dev
-```
-
-### Pre-commit Hooks
-
-This project uses pre-commit hooks to ensure code quality:
-
-- **Rust formatting** - `cargo fmt --check`
-- **Rust linting** - `cargo clippy --all-targets --all-features`
-- **Rust tests** - `cargo test --lib --all-features`
-- **TypeScript build** - Ensures guest-js builds successfully
-
-Run manually: `pre-commit run --all-files`
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure all tests pass and pre-commit hooks succeed
-5. Submit a pull request
-
 ## License
 
 This project is licensed under the MIT License.
