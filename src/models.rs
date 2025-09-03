@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -41,10 +41,16 @@ pub struct PostHogConfig {
     pub api_endpoint: String,
     #[serde(default = "default_request_timeout")]
     pub request_timeout_seconds: u64,
-    /// When enabled, automatically generates a device-based distinct_id for anonymous users
-    /// Format: $device:{machine_id}. Similar to Mixpanel's auto-identification.
-    #[serde(default = "default_auto_capture")]
-    pub auto_capture: bool,
+}
+
+impl Default for PostHogConfig {
+    fn default() -> Self {
+        Self {
+            api_key: String::new(),
+            api_endpoint: default_api_endpoint(),
+            request_timeout_seconds: default_request_timeout(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,15 +59,10 @@ pub struct BatchCaptureRequest {
     pub events: Vec<CaptureRequest>,
 }
 
-fn default_api_endpoint() -> String {
-    "https://us.i.posthog.com".to_string()
+pub fn default_api_endpoint() -> String {
+    "https://us.i.posthog.com/i/v0/e/".to_string()
 }
 
 fn default_request_timeout() -> u64 {
     30
 }
-
-fn default_auto_capture() -> bool {
-    true  // Enable by default to automatically identify users like mixpanel-rs
-}
-

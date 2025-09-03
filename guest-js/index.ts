@@ -13,10 +13,24 @@ export interface GroupObject {
 interface CaptureRequest {
   event: string
   properties?: Properties
-  distinctId?: string
+  distinct_id?: string
   groups?: GroupObject
   timestamp?: string
   anonymous?: boolean
+}
+
+interface IdentifyRequest {
+  distinct_id: string
+  properties?: Properties
+}
+
+interface AliasRequest {
+  distinct_id: string
+  alias: string
+}
+
+interface BatchCaptureRequest {
+  events: CaptureRequest[]
 }
 
 /**
@@ -30,12 +44,12 @@ export class PostHog {
    * @param properties - Event properties (optional)
    */
   static async capture(event: string, properties?: Properties): Promise<void> {
-    await invoke('plugin:posthog|capture', {
-      request: {
-        event,
-        properties
-      } as CaptureRequest
-    })
+    const request: CaptureRequest = {
+      event,
+      properties,
+      anonymous: false
+    }
+    await invoke('plugin:posthog|capture', request)
   }
 
   /**
@@ -44,12 +58,11 @@ export class PostHog {
    * @param properties - User properties (optional)
    */
   static async identify(distinctId: string, properties?: Properties): Promise<void> {
-    await invoke('plugin:posthog|identify', {
-      request: {
-        distinctId,
-        properties
-      }
-    })
+    const request: IdentifyRequest = {
+      distinct_id: distinctId,
+      properties
+    }
+    await invoke('plugin:posthog|identify', request)
   }
 
   /**
@@ -62,12 +75,11 @@ export class PostHog {
       throw new Error('Cannot create alias without a distinct ID. Call identify() first.')
     }
     
-    await invoke('plugin:posthog|alias', {
-      request: {
-        distinctId,
-        alias
-      }
-    })
+    const request: AliasRequest = {
+      distinct_id: distinctId,
+      alias
+    }
+    await invoke('plugin:posthog|alias', request)
   }
 
   /**
@@ -91,21 +103,6 @@ export class PostHog {
     return await invoke('plugin:posthog|get_device_id')
   }
 
-  /**
-   * Get the effective distinct ID (either user-set or auto-generated)
-   * This will always return a value, even if no explicit identify() was called
-   */
-  static async getEffectiveDistinctId(): Promise<string> {
-    return await invoke('plugin:posthog|get_effective_distinct_id')
-  }
-
-  /**
-   * Check if auto-identify is enabled
-   * When enabled, events will automatically use device-based distinct_id
-   */
-  static async isAutoIdentifyEnabled(): Promise<boolean> {
-    return await invoke('plugin:posthog|is_auto_identify_enabled')
-  }
 
   /**
    * Capture multiple events in batch
@@ -116,32 +113,31 @@ export class PostHog {
     properties?: Properties
     timestamp?: Date
   }>): Promise<void> {
-    const formattedEvents = events.map(event => ({
+    const formattedEvents: CaptureRequest[] = events.map(event => ({
       event: event.event,
       properties: event.properties,
-      timestamp: event.timestamp?.toISOString()
+      timestamp: event.timestamp?.toISOString(),
+      anonymous: false
     }))
 
-    await invoke('plugin:posthog|capture_batch', {
-      request: { events: formattedEvents }
-    })
+    const request: BatchCaptureRequest = {
+      events: formattedEvents
+    }
+    await invoke('plugin:posthog|capture_batch', request)
   }
 
-  // Advanced methods for power users
-  
   /**
    * Capture an anonymous event (does not affect user identification)
    * @param event - The event name
    * @param properties - Event properties (optional)
    */
   static async captureAnonymous(event: string, properties?: Properties): Promise<void> {
-    await invoke('plugin:posthog|capture', {
-      request: {
-        event,
-        properties,
-        anonymous: true
-      } as CaptureRequest
-    })
+    const request: CaptureRequest = {
+      event,
+      properties,
+      anonymous: true
+    }
+    await invoke('plugin:posthog|capture', request)
   }
 
   /**
@@ -150,14 +146,14 @@ export class PostHog {
    * @param properties - Event properties (optional)
    * @param timestamp - Event timestamp
    */
-  static async captureWithTimestamp(event: string, properties: Properties | undefined, timestamp: Date): Promise<void> {
-    await invoke('plugin:posthog|capture', {
-      request: {
-        event,
-        properties,
-        timestamp: timestamp.toISOString()
-      } as CaptureRequest
-    })
+  static async captureWithTimestamp(event: string, properties?: Properties, timestamp?: string): Promise<void> {
+    const request: CaptureRequest = {
+      event,
+      properties,
+      timestamp,
+      anonymous: false
+    }
+    await invoke('plugin:posthog|capture', request)
   }
 
   /**
@@ -166,14 +162,14 @@ export class PostHog {
    * @param properties - Event properties (optional)
    * @param groups - Group associations
    */
-  static async captureWithGroups(event: string, properties: Properties | undefined, groups: GroupObject): Promise<void> {
-    await invoke('plugin:posthog|capture', {
-      request: {
-        event,
-        properties,
-        groups
-      } as CaptureRequest
-    })
+  static async captureWithGroups(event: string, properties?: Properties, groups?: GroupObject): Promise<void> {
+    const request: CaptureRequest = {
+      event,
+      properties,
+      groups,
+      anonymous: false
+    }
+    await invoke('plugin:posthog|capture', request)
   }
 }
 

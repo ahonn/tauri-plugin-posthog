@@ -1,6 +1,41 @@
-# Svelte + Vite
+# Tauri PostHog Plugin Example
 
-This template should help get you started developing with Tauri and Svelte in Vite.
+This example application demonstrates the usage of the tauri-plugin-posthog plugin with Svelte and Vite.
+
+## Setup
+
+1. **Environment Variables**
+   
+   Create a `.env` file from the example:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Update your `.env` file with your actual PostHog API key:
+   ```env
+   POSTHOG_API_KEY=phc_your_actual_api_key_here
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Run the Development Server**
+   ```bash
+   pnpm tauri dev
+   ```
+
+## Features
+
+This example app demonstrates:
+- Event capture with custom properties
+- User identification
+- Alias creation  
+- Anonymous events
+- Batch event capture
+- ID management (distinct ID and device ID)
+- Session reset
 
 ## Recommended IDE Setup
 

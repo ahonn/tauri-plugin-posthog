@@ -57,16 +57,6 @@ pub fn get_device_id(client: State<'_, PostHogClientWrapper>) -> Result<String> 
 }
 
 #[command]
-pub fn get_effective_distinct_id(client: State<'_, PostHogClientWrapper>) -> Result<String> {
-    Ok(client.get_effective_distinct_id())
-}
-
-#[command]
-pub fn is_auto_identify_enabled(client: State<'_, PostHogClientWrapper>) -> Result<bool> {
-    Ok(client.is_auto_identify_enabled())
-}
-
-#[command]
 pub async fn capture_batch(
     request: BatchCaptureRequest,
     client: State<'_, PostHogClientWrapper>,

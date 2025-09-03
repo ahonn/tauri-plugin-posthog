@@ -9,7 +9,6 @@ pub struct PostHogClientWrapper {
     distinct_id: Arc<RwLock<Option<String>>>,
     device_id: String,
     config: PostHogConfig,
-    auto_identify_enabled: bool,
 }
 
 impl PostHogClientWrapper {
@@ -22,24 +21,14 @@ impl PostHogClientWrapper {
             .map_err(|e| crate::error::Error::ClientOptions(e.to_string()))?;
 
         let client = posthog_rs::client(client_options).await;
-
-        // Generate device_id using machine_uid like mixpanel-rs
         let device_id = Self::generate_device_id()?;
 
-        // Auto-generate distinct_id similar to mixpanel-rs pattern
-        let auto_identify_enabled = config.auto_capture;
-        let auto_distinct_id = if auto_identify_enabled {
-            Some(format!("$device:{}", device_id))
-        } else {
-            None
-        };
-
+        let auto_distinct_id = Some(format!("$device:{}", device_id));
         Ok(Self {
             client,
             distinct_id: Arc::new(RwLock::new(auto_distinct_id)),
             device_id,
             config,
-            auto_identify_enabled,
         })
     }
 
@@ -187,26 +176,4 @@ impl PostHogClientWrapper {
     pub fn get_config(&self) -> &PostHogConfig {
         &self.config
     }
-
-    /// Get the effective distinct_id (either user-set or auto-generated)
-    pub fn get_effective_distinct_id(&self) -> String {
-        self.get_distinct_id()
-            .unwrap_or_else(|| self.device_id.clone())
-    }
-
-    /// Check if auto-identify is enabled
-    pub fn is_auto_identify_enabled(&self) -> bool {
-        self.auto_identify_enabled
-    }
-
-    /// Force re-generate auto distinct_id (useful for testing or reset scenarios)
-    /// Note: This will use the same machine_uid, so it's mainly for consistency
-    pub fn regenerate_auto_distinct_id(&self) -> Result<()> {
-        if self.auto_identify_enabled {
-            let auto_distinct_id = format!("$device:{}", self.device_id);
-            *self.distinct_id.write() = Some(auto_distinct_id);
-        }
-        Ok(())
-    }
 }
-
