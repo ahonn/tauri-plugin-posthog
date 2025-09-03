@@ -3,6 +3,7 @@ name = "tauri-plugin-posthog"
 version = "0.1.0"
 authors = [ "ahonn" ]
 description = "A Tauri v2 plugin for integrating PostHog analytics into your Tauri applications"
+license = "MIT"
 edition = "2021"
 rust-version = "1.77.2"
 exclude = ["/examples", "/dist-js", "/guest-js", "/node_modules"]
