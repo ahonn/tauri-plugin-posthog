@@ -1,0 +1,18 @@
+[workspace]
+# Enable semver checks to ensure compatibility
+semver_check = true
+# Allow dirty working directory for release
+allow_dirty = false
+# Create GitHub release
+git_release_enable = true
+# Use conventional commits for changelog
+changelog_update = true
+
+[[package]]
+name = "tauri-plugin-posthog"
+# Changelog template
+changelog_include = ["feat", "fix", "perf", "refactor"]
+# Git tag template
+git_tag_name = "v{{ version }}"
+# Dependencies update strategy
+dependencies_update = true

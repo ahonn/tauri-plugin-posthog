@@ -1,0 +1,30 @@
+repos:
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: Check Rust formatting
+        entry: cargo fmt --all -- --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: Run clippy lints (all targets)
+        entry: cargo clippy --all-targets --all-features -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-test
+        name: Run tests (quick check)
+        entry: cargo test --lib --all-features
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: guest-js-build
+        name: Build guest-js TypeScript
+        entry: bash -c 'cd guest-js && pnpm install && pnpm build'
+        language: system
+        files: ^guest-js/
+        pass_filenames: false
