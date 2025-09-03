@@ -1,6 +1,6 @@
 <script>
   import Greet from './lib/Greet.svelte'
-  import { ping, PostHog, capture, identify, reset } from 'tauri-plugin-posthog-api'
+  import { PostHog, capture, identify, reset } from 'tauri-plugin-posthog-api'
 
 	let response = $state('')
 	let userName = $state('user-123')
@@ -10,9 +10,6 @@
 		response += `[${new Date().toLocaleTimeString()}] ` + (typeof returnValue === 'string' ? returnValue : JSON.stringify(returnValue)) + '<br>'
 	}
 
-	function _ping() {
-		ping("Pong!").then(updateResponse).catch(updateResponse)
-	}
 
 	async function _captureEvent() {
 		try {
@@ -47,6 +44,35 @@
 			updateResponse(`Distinct ID: ${distinctId || 'none'}, Device ID: ${deviceId}`)
 		} catch (error) {
 			updateResponse(`Error getting IDs: ${error}`)
+		}
+	}
+
+	async function _getEffectiveIds() {
+		try {
+			const effectiveDistinctId = await PostHog.getEffectiveDistinctId()
+			const deviceId = await PostHog.getDeviceId()
+			const autoEnabled = await PostHog.isAutoIdentifyEnabled()
+			updateResponse(`Effective Distinct ID: ${effectiveDistinctId}, Device ID: ${deviceId}, Auto-Identify: ${autoEnabled}`)
+		} catch (error) {
+			updateResponse(`Error getting effective IDs: ${error}`)
+		}
+	}
+
+	async function _showAutoIdentifyStatus() {
+		try {
+			const autoEnabled = await PostHog.isAutoIdentifyEnabled()
+			const distinctId = await PostHog.getDistinctId()
+			const effectiveId = await PostHog.getEffectiveDistinctId()
+			
+			updateResponse(`Auto-Identify Enabled: ${autoEnabled}`)
+			updateResponse(`User-set Distinct ID: ${distinctId || 'none'}`)
+			updateResponse(`Effective Distinct ID: ${effectiveId}`)
+			
+			if (autoEnabled && !distinctId) {
+				updateResponse('✅ Auto-identify is working - using device-based ID!')
+			}
+		} catch (error) {
+			updateResponse(`Error checking auto-identify status: ${error}`)
 		}
 	}
 
@@ -128,13 +154,17 @@
     </div>
 
     <div class="button-section">
-      <button onclick="{_identify}">Identify User</button>
+      <h3>Core Functionality:</h3>
       <button onclick="{_captureEvent}">Capture Event</button>
+      <button onclick="{_identify}">Identify User</button>
       <button onclick="{_captureAnonymous}">Capture Anonymous</button>
       <button onclick="{_captureBatch}">Capture Batch</button>
-      <button onclick="{_getIds}">Get IDs</button>
       <button onclick="{_reset}">Reset</button>
-      <button onclick="{_ping}">Ping (Legacy)</button>
+      
+      <h3>Auto-Identify Features:</h3>
+      <button onclick="{_showAutoIdentifyStatus}" style="background: #28a745;">🔍 Check Auto-Identify Status</button>
+      <button onclick="{_getEffectiveIds}">Get Effective IDs</button>
+      <button onclick="{_getIds}">Get Basic IDs</button>
     </div>
 
     <div class="response-section">

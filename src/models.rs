@@ -41,6 +41,8 @@ pub struct PostHogConfig {
     pub api_endpoint: String,
     #[serde(default = "default_request_timeout")]
     pub request_timeout_seconds: u64,
+    /// When enabled, automatically generates a device-based distinct_id for anonymous users
+    /// Format: $device:{machine_id}. Similar to Mixpanel's auto-identification.
     #[serde(default = "default_auto_capture")]
     pub auto_capture: bool,
 }
@@ -60,18 +62,6 @@ fn default_request_timeout() -> u64 {
 }
 
 fn default_auto_capture() -> bool {
-    false
+    true  // Enable by default to automatically identify users like mixpanel-rs
 }
 
-// Legacy models for backward compatibility
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PingRequest {
-    pub value: Option<String>,
-}
-
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PingResponse {
-    pub value: Option<String>,
-}

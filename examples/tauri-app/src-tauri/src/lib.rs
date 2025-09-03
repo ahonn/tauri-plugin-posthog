@@ -12,7 +12,7 @@ pub fn run() {
             api_key: "phc_test_key_please_replace_with_your_own".to_string(),
             api_endpoint: "https://us.i.posthog.com".to_string(),
             request_timeout_seconds: 30,
-            auto_capture: false,
+            auto_capture: true,  // Enable auto-identify with device-based distinct_id
         }))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

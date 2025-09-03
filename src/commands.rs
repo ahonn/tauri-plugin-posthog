@@ -1,7 +1,7 @@
-use tauri::{command, State};
 use crate::client::PostHogClientWrapper;
-use crate::models::*;
 use crate::error::Result;
+use crate::models::*;
+use tauri::{command, State};
 
 #[command]
 pub async fn capture(
@@ -17,7 +17,7 @@ pub async fn identify(
     client: State<'_, PostHogClientWrapper>,
 ) -> Result<()> {
     client.identify(request.distinct_id.clone());
-    
+
     // Send $identify event with properties if provided
     if let Some(properties) = request.properties {
         let capture_request = CaptureRequest {
@@ -30,39 +30,40 @@ pub async fn identify(
         };
         client.capture(capture_request).await?;
     }
-    
+
     Ok(())
 }
 
 #[command]
-pub async fn alias(
-    request: AliasRequest,
-    client: State<'_, PostHogClientWrapper>,
-) -> Result<()> {
+pub async fn alias(request: AliasRequest, client: State<'_, PostHogClientWrapper>) -> Result<()> {
     client.identify(request.distinct_id);
     client.alias(request.alias).await
 }
 
 #[command]
-pub fn reset(
-    client: State<'_, PostHogClientWrapper>,
-) -> Result<()> {
+pub fn reset(client: State<'_, PostHogClientWrapper>) -> Result<()> {
     client.reset();
     Ok(())
 }
 
 #[command]
-pub fn get_distinct_id(
-    client: State<'_, PostHogClientWrapper>,
-) -> Result<Option<String>> {
+pub fn get_distinct_id(client: State<'_, PostHogClientWrapper>) -> Result<Option<String>> {
     Ok(client.get_distinct_id())
 }
 
 #[command]
-pub fn get_device_id(
-    client: State<'_, PostHogClientWrapper>,
-) -> Result<String> {
+pub fn get_device_id(client: State<'_, PostHogClientWrapper>) -> Result<String> {
     Ok(client.get_device_id())
+}
+
+#[command]
+pub fn get_effective_distinct_id(client: State<'_, PostHogClientWrapper>) -> Result<String> {
+    Ok(client.get_effective_distinct_id())
+}
+
+#[command]
+pub fn is_auto_identify_enabled(client: State<'_, PostHogClientWrapper>) -> Result<bool> {
+    Ok(client.is_auto_identify_enabled())
 }
 
 #[command]
@@ -71,14 +72,4 @@ pub async fn capture_batch(
     client: State<'_, PostHogClientWrapper>,
 ) -> Result<()> {
     client.capture_batch(request.events).await
-}
-
-// Legacy ping command for backward compatibility
-#[command]
-pub(crate) async fn ping(
-    payload: PingRequest,
-) -> Result<PingResponse> {
-    Ok(PingResponse {
-        value: payload.value,
-    })
 }

@@ -1,3 +1,58 @@
 [default]
 description = "Default permissions for the plugin"
-permissions = ["allow-ping"]
+permissions = [
+  "allow-capture", 
+  "allow-identify",
+  "allow-alias",
+  "allow-reset",
+  "allow-get-distinct-id",
+  "allow-get-device-id",
+  "allow-get-effective-distinct-id",
+  "allow-is-auto-identify-enabled",
+  "allow-capture-batch"
+]
+
+[[permission]]
+identifier = "allow-capture"
+description = "Allows capturing PostHog events"
+commands.allow = ["capture"]
+
+[[permission]]
+identifier = "allow-identify" 
+description = "Allows identifying users in PostHog"
+commands.allow = ["identify"]
+
+[[permission]]
+identifier = "allow-alias"
+description = "Allows creating user aliases in PostHog"
+commands.allow = ["alias"]
+
+[[permission]]
+identifier = "allow-reset"
+description = "Allows resetting user data in PostHog"
+commands.allow = ["reset"]
+
+[[permission]]
+identifier = "allow-get-distinct-id"
+description = "Allows getting the current distinct ID"
+commands.allow = ["get_distinct_id"]
+
+[[permission]]
+identifier = "allow-get-device-id"
+description = "Allows getting the device ID"
+commands.allow = ["get_device_id"]
+
+[[permission]]
+identifier = "allow-get-effective-distinct-id"
+description = "Allows getting the effective distinct ID (user-set or auto-generated)"
+commands.allow = ["get_effective_distinct_id"]
+
+[[permission]]
+identifier = "allow-is-auto-identify-enabled"
+description = "Allows checking if auto-identify is enabled"
+commands.allow = ["is_auto_identify_enabled"]
+
+[[permission]]
+identifier = "allow-capture-batch"
+description = "Allows batch capturing multiple PostHog events"
+commands.allow = ["capture_batch"]

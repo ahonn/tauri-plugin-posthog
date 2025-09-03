@@ -92,6 +92,22 @@ export class PostHog {
   }
 
   /**
+   * Get the effective distinct ID (either user-set or auto-generated)
+   * This will always return a value, even if no explicit identify() was called
+   */
+  static async getEffectiveDistinctId(): Promise<string> {
+    return await invoke('plugin:posthog|get_effective_distinct_id')
+  }
+
+  /**
+   * Check if auto-identify is enabled
+   * When enabled, events will automatically use device-based distinct_id
+   */
+  static async isAutoIdentifyEnabled(): Promise<boolean> {
+    return await invoke('plugin:posthog|is_auto_identify_enabled')
+  }
+
+  /**
    * Capture multiple events in batch
    * @param events - Array of events to capture
    */
@@ -173,11 +189,3 @@ export const reset = PostHog.reset.bind(PostHog)
 // Alias for PostHog class (common pattern)
 export { PostHog as posthog }
 
-// Legacy ping function for backward compatibility
-export async function ping(value: string): Promise<string | null> {
-  return await invoke<{value?: string}>('plugin:posthog|ping', {
-    payload: {
-      value,
-    },
-  }).then((r) => (r.value ? r.value : null));
-}
