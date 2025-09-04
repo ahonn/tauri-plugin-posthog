@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 \
+## [0.2.2] - 2025-09-04
+\
+
+### Fixed
+
+- Resolve async runtime conflict in plugin initialization ([f83c604](https://github.com/ahonn/tauri-plugin-posthog/commit/f83c604feb427731e56a8de4262ea1079e84245f))
+\n\
 ## [0.2.1] - 2025-09-04
 \
 
