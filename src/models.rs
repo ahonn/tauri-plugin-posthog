@@ -72,7 +72,6 @@ impl Default for PostHogConfig {
     }
 }
 
-
 pub fn default_api_host() -> String {
     "https://us.i.posthog.com".to_string()
 }

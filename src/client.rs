@@ -97,7 +97,6 @@ impl PostHogClientWrapper {
         Ok(())
     }
 
-
     pub fn identify(&self, distinct_id: String) {
         *self.distinct_id.write() = Some(distinct_id);
     }
@@ -123,7 +122,6 @@ impl PostHogClientWrapper {
     pub fn get_distinct_id(&self) -> Option<String> {
         self.distinct_id.read().clone()
     }
-
 
     pub fn get_config(&self) -> &PostHogConfig {
         &self.config
