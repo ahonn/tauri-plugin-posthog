@@ -55,6 +55,13 @@ export class PostHogTauri {
         ...config.options
       })
 
+      // Sync any existing distinct_id from Rust backend
+      const existingDistinctId: string | null = await invoke('plugin:posthog|get_distinct_id')
+      if (existingDistinctId) {
+        // Apply the existing distinct_id to PostHog JS SDK without triggering backend call
+        posthog.identify(existingDistinctId)
+      }
+
       this.initialized = true
     } catch (error) {
       console.error('Failed to initialize PostHog:', error)
@@ -74,12 +81,21 @@ export class PostHogTauri {
 
   /**
    * Identify a user with a distinct ID and optional properties
+   * This method synchronizes the distinct_id between Rust backend and PostHog JS SDK
    * @param distinctId - The unique identifier for the user
    * @param properties - User properties (optional)
    */
   static async identify(distinctId: string, properties?: any): Promise<void> {
     await this.init()
-    posthog.identify(distinctId, properties)
+    
+    // First update the Rust backend state
+    await invoke('plugin:posthog|identify', { 
+      distinct_id: distinctId,
+      properties: properties 
+    })
+    
+    // Then update PostHog JS SDK (but skip properties since they're handled by backend)
+    posthog.identify(distinctId)
   }
 
   /**
@@ -93,18 +109,26 @@ export class PostHogTauri {
 
   /**
    * Reset the current user (clears distinct ID and other user data)
+   * This method synchronizes the reset between Rust backend and PostHog JS SDK
    */
   static async reset(): Promise<void> {
     await this.init()
+    
+    // First reset the Rust backend state
+    await invoke('plugin:posthog|reset')
+    
+    // Then reset PostHog JS SDK
     posthog.reset()
   }
 
   /**
    * Get the current distinct ID
+   * Returns the distinct_id from Rust backend as the source of truth
    */
   static async getDistinctId(): Promise<string | undefined> {
     await this.init()
-    return posthog.get_distinct_id()
+    const backendDistinctId: string | null = await invoke('plugin:posthog|get_distinct_id')
+    return backendDistinctId || posthog.get_distinct_id()
   }
 
   /**
