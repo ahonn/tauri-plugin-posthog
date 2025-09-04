@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-posthog"
-version = "0.1.1"
+version = "0.2.0"
 authors = [ "ahonn" ]
 description = "A Tauri v2 plugin for integrating PostHog analytics into your Tauri applications"
 license = "MIT"
