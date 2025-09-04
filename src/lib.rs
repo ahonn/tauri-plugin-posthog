@@ -36,11 +36,18 @@ pub fn init<R: Runtime>(config: PostHogConfig) -> TauriPlugin<R, ()> {
             commands::get_config,
         ])
         .setup(move |app, _api| {
-            tauri::async_runtime::block_on(async {
-                let client = PostHogClientWrapper::new(config).await?;
-                app.manage(client);
-                Ok(())
-            })
+            let app_handle = app.clone();
+            tauri::async_runtime::spawn(async move {
+                match PostHogClientWrapper::new(config).await {
+                    Ok(client) => {
+                        app_handle.manage(client);
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to initialize PostHog client: {}", e);
+                    }
+                }
+            });
+            Ok(())
         })
         .build()
 }
