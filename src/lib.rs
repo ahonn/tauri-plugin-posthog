@@ -11,8 +11,7 @@ mod models;
 use client::PostHogClientWrapper;
 pub use error::{Error, Result};
 pub use models::{
-    default_api_host, PostHogConfig, PostHogOptions,
-    CaptureRequest, IdentifyRequest, AliasRequest
+    default_api_host, AliasRequest, CaptureRequest, IdentifyRequest, PostHogConfig, PostHogOptions,
 };
 
 pub trait PostHogExt<R: Runtime> {

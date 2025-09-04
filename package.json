@@ -1,6 +1,6 @@
 {
   "name": "tauri-plugin-posthog-api",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "ahonn",
   "description": "A Tauri v2 plugin for integrating PostHog analytics - JavaScript/TypeScript API",
   "type": "module",
