@@ -2121,10 +2121,10 @@
           "markdownDescription": "Denies the unminimize command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-device-id`\n- `allow-get-effective-distinct-id`\n- `allow-is-auto-identify-enabled`\n- `allow-capture-batch`",
+          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-config`",
           "type": "string",
           "const": "posthog:default",
-          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-device-id`\n- `allow-get-effective-distinct-id`\n- `allow-is-auto-identify-enabled`\n- `allow-capture-batch`"
+          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-config`"
         },
         {
           "description": "Allows creating user aliases in PostHog",
@@ -2139,16 +2139,10 @@
           "markdownDescription": "Allows capturing PostHog events"
         },
         {
-          "description": "Allows batch capturing multiple PostHog events",
+          "description": "Allows getting PostHog configuration for frontend initialization",
           "type": "string",
-          "const": "posthog:allow-capture-batch",
-          "markdownDescription": "Allows batch capturing multiple PostHog events"
-        },
-        {
-          "description": "Allows getting the device ID",
-          "type": "string",
-          "const": "posthog:allow-get-device-id",
-          "markdownDescription": "Allows getting the device ID"
+          "const": "posthog:allow-get-config",
+          "markdownDescription": "Allows getting PostHog configuration for frontend initialization"
         },
         {
           "description": "Allows getting the current distinct ID",
@@ -2157,22 +2151,10 @@
           "markdownDescription": "Allows getting the current distinct ID"
         },
         {
-          "description": "Allows getting the effective distinct ID (user-set or auto-generated)",
-          "type": "string",
-          "const": "posthog:allow-get-effective-distinct-id",
-          "markdownDescription": "Allows getting the effective distinct ID (user-set or auto-generated)"
-        },
-        {
           "description": "Allows identifying users in PostHog",
           "type": "string",
           "const": "posthog:allow-identify",
           "markdownDescription": "Allows identifying users in PostHog"
-        },
-        {
-          "description": "Allows checking if auto-identify is enabled",
-          "type": "string",
-          "const": "posthog:allow-is-auto-identify-enabled",
-          "markdownDescription": "Allows checking if auto-identify is enabled"
         },
         {
           "description": "Enables the ping command without any pre-configured scope.",

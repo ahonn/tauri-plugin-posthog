@@ -1,59 +1,75 @@
 import { invoke } from '@tauri-apps/api/core'
+import posthog from 'posthog-js'
 
-// Core interfaces matching PostHog JS SDK patterns
-export interface Properties {
-  [key: string]: any
-}
+// Re-export types from PostHog JS SDK
+export type { Properties, CaptureOptions } from 'posthog-js'
 
+// Define GroupObject type locally since it's not exported from posthog-js
 export interface GroupObject {
   [groupType: string]: string | number
 }
 
-// Internal request interfaces for Tauri communication
-interface CaptureRequest {
-  event: string
-  properties?: Properties
-  distinct_id?: string
-  groups?: GroupObject
-  timestamp?: string
-  anonymous?: boolean
-  [key: string]: unknown
-}
-
-interface IdentifyRequest {
-  distinct_id: string
-  properties?: Properties
-  [key: string]: unknown
-}
-
-interface AliasRequest {
-  distinct_id: string
-  alias: string
-  [key: string]: unknown
-}
-
-interface BatchCaptureRequest {
-  events: CaptureRequest[]
-  [key: string]: unknown
+// Configuration interface returned by Tauri backend
+interface PostHogConfig {
+  apiKey: string
+  apiHost: string
+  options?: {
+    disableCookie?: boolean
+    disableSessionRecording?: boolean
+    capturePageview?: boolean
+    capturePageleave?: boolean
+    debug?: boolean
+    persistence?: 'localStorage' | 'cookie' | 'memory' | 'localStorage+cookie' | 'sessionStorage'
+    personProfiles?: 'always' | 'never' | 'identified_only'
+  }
 }
 
 /**
  * PostHog client for Tauri applications
- * API designed to match PostHog JS SDK patterns
+ * Wraps PostHog JS SDK with automatic configuration from Tauri backend
  */
-export class PostHog {
+export class PostHogTauri {
+  private static initialized = false
+  private static initPromise: Promise<void> | null = null
+
+  /**
+   * Initialize PostHog with configuration from Tauri backend
+   * This is called automatically on first use
+   */
+  private static async init(): Promise<void> {
+    if (this.initialized) return
+    if (this.initPromise) return this.initPromise
+
+    this.initPromise = this._performInit()
+    return this.initPromise
+  }
+
+  private static async _performInit(): Promise<void> {
+    try {
+      // Get configuration from Tauri backend
+      const config: PostHogConfig = await invoke('plugin:posthog|get_config')
+
+      // Initialize PostHog JS SDK with backend configuration
+      posthog.init(config.apiKey, {
+        api_host: config.apiHost,
+        ...config.options
+      })
+
+      this.initialized = true
+    } catch (error) {
+      console.error('Failed to initialize PostHog:', error)
+      throw new Error(`PostHog initialization failed: ${error}`)
+    }
+  }
+
   /**
    * Capture an event with optional properties
    * @param event - The event name
    * @param properties - Event properties (optional)
    */
-  static async capture(event: string, properties?: Properties): Promise<void> {
-    const request: CaptureRequest = {
-      event,
-      properties,
-      anonymous: false
-    }
-    await invoke('plugin:posthog|capture', request)
+  static async capture(event: string, properties?: any): Promise<void> {
+    await this.init()
+    posthog.capture(event, properties)
   }
 
   /**
@@ -61,12 +77,9 @@ export class PostHog {
    * @param distinctId - The unique identifier for the user
    * @param properties - User properties (optional)
    */
-  static async identify(distinctId: string, properties?: Properties): Promise<void> {
-    const request: IdentifyRequest = {
-      distinct_id: distinctId,
-      properties
-    }
-    await invoke('plugin:posthog|identify', request)
+  static async identify(distinctId: string, properties?: any): Promise<void> {
+    await this.init()
+    posthog.identify(distinctId, properties)
   }
 
   /**
@@ -74,118 +87,104 @@ export class PostHog {
    * @param alias - The alias to create
    */
   static async alias(alias: string): Promise<void> {
-    const distinctId = await this.getDistinctId()
-    if (!distinctId) {
-      throw new Error('Cannot create alias without a distinct ID. Call identify() first.')
-    }
-    
-    const request: AliasRequest = {
-      distinct_id: distinctId,
-      alias
-    }
-    await invoke('plugin:posthog|alias', request)
+    await this.init()
+    posthog.alias(alias)
   }
 
   /**
    * Reset the current user (clears distinct ID and other user data)
    */
   static async reset(): Promise<void> {
-    await invoke('plugin:posthog|reset')
+    await this.init()
+    posthog.reset()
   }
 
   /**
    * Get the current distinct ID
    */
-  static async getDistinctId(): Promise<string | null> {
-    return await invoke('plugin:posthog|get_distinct_id')
+  static async getDistinctId(): Promise<string | undefined> {
+    await this.init()
+    return posthog.get_distinct_id()
   }
 
   /**
-   * Get the device ID
+   * Group identify - associate user with a group
+   * @param groupType - The type of group (e.g., 'company', 'project')
+   * @param groupKey - The key for the group
+   * @param properties - Group properties (optional)
    */
-  static async getDeviceId(): Promise<string> {
-    return await invoke('plugin:posthog|get_device_id')
-  }
-
-
-  /**
-   * Capture multiple events in batch
-   * @param events - Array of events to capture
-   */
-  static async captureBatch(events: Array<{
-    event: string
-    properties?: Properties
-    timestamp?: Date
-  }>): Promise<void> {
-    const formattedEvents: CaptureRequest[] = events.map(event => ({
-      event: event.event,
-      properties: event.properties,
-      timestamp: event.timestamp?.toISOString(),
-      anonymous: false
-    }))
-
-    const request: BatchCaptureRequest = {
-      events: formattedEvents
-    }
-    await invoke('plugin:posthog|capture_batch', request)
+  static async groupIdentify(groupType: string, groupKey: string, properties?: any): Promise<void> {
+    await this.init()
+    posthog.group(groupType, groupKey, properties)
   }
 
   /**
-   * Capture an anonymous event (does not affect user identification)
-   * @param event - The event name
-   * @param properties - Event properties (optional)
+   * Set person properties
+   * @param properties - Properties to set on the person
    */
-  static async captureAnonymous(event: string, properties?: Properties): Promise<void> {
-    const request: CaptureRequest = {
-      event,
-      properties,
-      anonymous: true
-    }
-    await invoke('plugin:posthog|capture', request)
+  static async setPersonProperties(properties: any): Promise<void> {
+    await this.init()
+    posthog.setPersonProperties(properties)
   }
 
   /**
-   * Capture event with timestamp (for historical events)
-   * @param event - The event name
-   * @param properties - Event properties (optional)
-   * @param timestamp - Event timestamp
+   * Feature flag methods
    */
-  static async captureWithTimestamp(event: string, properties?: Properties, timestamp?: string): Promise<void> {
-    const request: CaptureRequest = {
-      event,
-      properties,
-      timestamp,
-      anonymous: false
-    }
-    await invoke('plugin:posthog|capture', request)
+  static async isFeatureEnabled(flagKey: string): Promise<boolean> {
+    await this.init()
+    return posthog.isFeatureEnabled(flagKey) || false
+  }
+
+  static async getFeatureFlag(flagKey: string): Promise<string | boolean | undefined> {
+    await this.init()
+    return posthog.getFeatureFlag(flagKey)
+  }
+
+  static async getFeatureFlagPayload(flagKey: string): Promise<any> {
+    await this.init()
+    return posthog.getFeatureFlagPayload(flagKey)
+  }
+
+  static async reloadFeatureFlags(): Promise<void> {
+    await this.init()
+    posthog.reloadFeatureFlags()
   }
 
   /**
-   * Capture event with groups
-   * @param event - The event name
-   * @param properties - Event properties (optional)
-   * @param groups - Group associations
+   * Page view tracking
+   * @param properties - Page properties (optional)
    */
-  static async captureWithGroups(event: string, properties?: Properties, groups?: GroupObject): Promise<void> {
-    const request: CaptureRequest = {
-      event,
-      properties,
-      groups,
-      anonymous: false
-    }
-    await invoke('plugin:posthog|capture', request)
+  static async capturePageView(properties?: any): Promise<void> {
+    await this.init()
+    posthog.capture('$pageview', properties)
+  }
+
+  /**
+   * Get the PostHog JS SDK instance (advanced usage)
+   * Ensures PostHog is initialized before returning
+   */
+  static async getInstance(): Promise<typeof posthog> {
+    await this.init()
+    return posthog
+  }
+
+  /**
+   * Check if PostHog has been initialized
+   */
+  static isInitialized(): boolean {
+    return this.initialized
+  }
+
+  /**
+   * Manually initialize PostHog (optional - will be called automatically)
+   */
+  static async initialize(): Promise<void> {
+    return this.init()
   }
 }
 
-// Default export (matching PostHog JS SDK pattern)
-export default PostHog
+// Default export
+export default PostHogTauri
 
-// Convenience exports for functional programming style
-export const capture = PostHog.capture.bind(PostHog)
-export const identify = PostHog.identify.bind(PostHog)
-export const alias = PostHog.alias.bind(PostHog)
-export const reset = PostHog.reset.bind(PostHog)
-
-// Alias for PostHog class (common pattern)
-export { PostHog as posthog }
-
+// Named exports
+export { PostHogTauri as PostHog }

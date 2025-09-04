@@ -307,10 +307,10 @@
           "markdownDescription": "Denies the ping command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-device-id`\n- `allow-get-effective-distinct-id`\n- `allow-is-auto-identify-enabled`\n- `allow-capture-batch`",
+          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-config`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-device-id`\n- `allow-get-effective-distinct-id`\n- `allow-is-auto-identify-enabled`\n- `allow-capture-batch`"
+          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-capture`\n- `allow-identify`\n- `allow-alias`\n- `allow-reset`\n- `allow-get-distinct-id`\n- `allow-get-config`"
         },
         {
           "description": "Allows capturing PostHog events",
@@ -343,28 +343,10 @@
           "markdownDescription": "Allows getting the current distinct ID"
         },
         {
-          "description": "Allows getting the device ID",
+          "description": "Allows getting PostHog configuration for frontend initialization",
           "type": "string",
-          "const": "allow-get-device-id",
-          "markdownDescription": "Allows getting the device ID"
-        },
-        {
-          "description": "Allows getting the effective distinct ID (user-set or auto-generated)",
-          "type": "string",
-          "const": "allow-get-effective-distinct-id",
-          "markdownDescription": "Allows getting the effective distinct ID (user-set or auto-generated)"
-        },
-        {
-          "description": "Allows checking if auto-identify is enabled",
-          "type": "string",
-          "const": "allow-is-auto-identify-enabled",
-          "markdownDescription": "Allows checking if auto-identify is enabled"
-        },
-        {
-          "description": "Allows batch capturing multiple PostHog events",
-          "type": "string",
-          "const": "allow-capture-batch",
-          "markdownDescription": "Allows batch capturing multiple PostHog events"
+          "const": "allow-get-config",
+          "markdownDescription": "Allows getting PostHog configuration for frontend initialization"
         }
       ]
     }

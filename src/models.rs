@@ -37,32 +37,42 @@ pub struct AliasRequest {
 #[serde(rename_all = "camelCase")]
 pub struct PostHogConfig {
     pub api_key: String,
-    #[serde(default = "default_api_endpoint")]
-    pub api_endpoint: String,
-    #[serde(default = "default_request_timeout")]
-    pub request_timeout_seconds: u64,
+    #[serde(default = "default_api_host")]
+    pub api_host: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<PostHogOptions>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct PostHogOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_cookie: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_session_recording: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capture_pageview: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capture_pageleave: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub debug: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub persistence: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub person_profiles: Option<String>,
 }
 
 impl Default for PostHogConfig {
     fn default() -> Self {
         Self {
             api_key: String::new(),
-            api_endpoint: default_api_endpoint(),
-            request_timeout_seconds: default_request_timeout(),
+            api_host: default_api_host(),
+            options: None,
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BatchCaptureRequest {
-    pub events: Vec<CaptureRequest>,
-}
 
-pub fn default_api_endpoint() -> String {
-    "https://us.i.posthog.com/i/v0/e/".to_string()
-}
-
-fn default_request_timeout() -> u64 {
-    30
+pub fn default_api_host() -> String {
+    "https://us.i.posthog.com".to_string()
 }

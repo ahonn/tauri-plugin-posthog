@@ -12,6 +12,8 @@ pub enum Error {
     ClientOptions(String),
     #[error("Timestamp parse error: {0}")]
     TimestampParse(String),
+    #[error("Missing API key: Please set POSTHOG_API_KEY environment variable or configure apiKey in tauri.conf.json")]
+    MissingApiKey,
 }
 
 impl Serialize for Error {

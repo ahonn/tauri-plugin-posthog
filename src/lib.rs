@@ -10,7 +10,7 @@ mod models;
 
 use client::PostHogClientWrapper;
 pub use error::{Error, Result};
-pub use models::{default_api_endpoint, PostHogConfig};
+pub use models::{default_api_host, PostHogConfig, PostHogOptions};
 
 pub trait PostHogExt<R: Runtime> {
     fn posthog(&self) -> &PostHogClientWrapper;
@@ -23,16 +23,15 @@ impl<R: Runtime, T: Manager<R>> PostHogExt<R> for T {
 }
 
 /// Initialize PostHog plugin with configuration
-pub fn init<R: Runtime>(config: PostHogConfig) -> TauriPlugin<R> {
-    Builder::new("posthog")
+pub fn init<R: Runtime>(config: PostHogConfig) -> TauriPlugin<R, ()> {
+    Builder::<R>::new("posthog")
         .invoke_handler(tauri::generate_handler![
             commands::capture,
             commands::identify,
             commands::alias,
             commands::reset,
             commands::get_distinct_id,
-            commands::get_device_id,
-            commands::capture_batch,
+            commands::get_config,
         ])
         .setup(move |app, _api| {
             tauri::async_runtime::block_on(async {

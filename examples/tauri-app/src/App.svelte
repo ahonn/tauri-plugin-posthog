@@ -1,5 +1,5 @@
 <script>
-  import { PostHog, capture, identify, reset } from 'tauri-plugin-posthog-api'
+  import { PostHog } from 'tauri-plugin-posthog-api'
 
 	let response = $state('')
 	let userName = $state('user-123')
@@ -41,8 +41,7 @@
 	async function _getIds() {
 		try {
 			const distinctId = await PostHog.getDistinctId()
-			const deviceId = await PostHog.getDeviceId()
-			updateResponse(`Distinct ID: ${distinctId || 'none'}, Device ID: ${deviceId}`)
+			updateResponse(`Distinct ID: ${distinctId || 'none'}`)
 		} catch (error) {
 			updateResponse(`Error getting IDs: ${error}`)
 		}
@@ -57,33 +56,25 @@
 		}
 	}
 
-	async function _captureAnonymous() {
+	async function _testFeatureFlag() {
 		try {
-			await PostHog.captureAnonymous('anonymous_event', {
-				action: 'test',
-				anonymous: true
-			})
-			updateResponse('Anonymous event captured successfully')
+			const isEnabled = await PostHog.isFeatureEnabled('test-feature')
+			const flagValue = await PostHog.getFeatureFlag('test-feature')
+			updateResponse(`Feature flag 'test-feature' - enabled: ${isEnabled}, value: ${flagValue}`)
 		} catch (error) {
-			updateResponse(`Error capturing anonymous event: ${error}`)
+			updateResponse(`Error checking feature flag: ${error}`)
 		}
 	}
 
-	async function _captureBatch() {
+	async function _setPersonProperties() {
 		try {
-			await PostHog.captureBatch([
-				{
-					event: 'batch_event_1',
-					properties: { batch: true, index: 1 }
-				},
-				{
-					event: 'batch_event_2',
-					properties: { batch: true, index: 2 }
-				}
-			])
-			updateResponse('Batch events captured successfully')
+			await PostHog.setPersonProperties({
+				subscription: 'pro',
+				last_login: new Date().toISOString()
+			})
+			updateResponse('Person properties set successfully')
 		} catch (error) {
-			updateResponse(`Error capturing batch events: ${error}`)
+			updateResponse(`Error setting person properties: ${error}`)
 		}
 	}
 
@@ -111,8 +102,8 @@
       <button onclick="{_captureEvent}">Capture</button>
       <button onclick="{_identify}">Identify</button>
       <button onclick="{_createAlias}">Alias</button>
-      <button onclick="{_captureAnonymous}">Anonymous</button>
-      <button onclick="{_captureBatch}">Batch</button>
+      <button onclick="{_testFeatureFlag}">Feature Flag</button>
+      <button onclick="{_setPersonProperties}">Set Properties</button>
       <button onclick="{_getIds}">Get IDs</button>
       <button onclick="{_reset}" class="danger">Reset</button>
     </div>

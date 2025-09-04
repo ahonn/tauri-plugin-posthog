@@ -1,4 +1,4 @@
-use dotenvy_macro::dotenv;
+use std::env;
 
 // Learn more about Tauri commands at https://v2.tauri.app/develop/calling-rust/#commands
 #[tauri::command]
@@ -8,14 +8,19 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let api_key = dotenv!("POSTHOG_API_KEY", "phc_test_key_please_replace_with_your_own");
+    // Try to load .env file if it exists
+    if let Err(_) = dotenvy::dotenv() {
+        println!("No .env file found, using environment variables or defaults");
+    }
+    
+    let api_key = env::var("POSTHOG_API_KEY")
+        .expect("POSTHOG_API_KEY environment variable is required. Please set it in .env file or environment.");
     
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![greet])
         .plugin(tauri_plugin_posthog::init(tauri_plugin_posthog::PostHogConfig {
-            api_key: api_key.to_string(),
-            api_endpoint: "https://us.i.posthog.com/i/v0/e/".to_string(),
-            request_timeout_seconds: 30,
+            api_key,
+            ..Default::default()
         }))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

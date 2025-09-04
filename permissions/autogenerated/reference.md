@@ -9,10 +9,7 @@ Default permissions for the plugin
 - `allow-alias`
 - `allow-reset`
 - `allow-get-distinct-id`
-- `allow-get-device-id`
-- `allow-get-effective-distinct-id`
-- `allow-is-auto-identify-enabled`
-- `allow-capture-batch`
+- `allow-get-config`
 
 ## Permission Table
 
@@ -117,51 +114,12 @@ Allows getting the current distinct ID
 <tr>
 <td>
 
-`posthog:allow-get-device-id`
+`posthog:allow-get-config`
 
 </td>
 <td>
 
-Allows getting the device ID
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`posthog:allow-get-effective-distinct-id`
-
-</td>
-<td>
-
-Allows getting the effective distinct ID (user-set or auto-generated)
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`posthog:allow-is-auto-identify-enabled`
-
-</td>
-<td>
-
-Allows checking if auto-identify is enabled
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`posthog:allow-capture-batch`
-
-</td>
-<td>
-
-Allows batch capturing multiple PostHog events
+Allows getting PostHog configuration for frontend initialization
 
 </td>
 </tr>

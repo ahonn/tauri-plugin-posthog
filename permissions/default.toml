@@ -6,10 +6,7 @@ permissions = [
   "allow-alias",
   "allow-reset",
   "allow-get-distinct-id",
-  "allow-get-device-id",
-  "allow-get-effective-distinct-id",
-  "allow-is-auto-identify-enabled",
-  "allow-capture-batch"
+  "allow-get-config"
 ]
 
 [[permission]]
@@ -37,22 +34,8 @@ identifier = "allow-get-distinct-id"
 description = "Allows getting the current distinct ID"
 commands.allow = ["get_distinct_id"]
 
-[[permission]]
-identifier = "allow-get-device-id"
-description = "Allows getting the device ID"
-commands.allow = ["get_device_id"]
 
 [[permission]]
-identifier = "allow-get-effective-distinct-id"
-description = "Allows getting the effective distinct ID (user-set or auto-generated)"
-commands.allow = ["get_effective_distinct_id"]
-
-[[permission]]
-identifier = "allow-is-auto-identify-enabled"
-description = "Allows checking if auto-identify is enabled"
-commands.allow = ["is_auto_identify_enabled"]
-
-[[permission]]
-identifier = "allow-capture-batch"
-description = "Allows batch capturing multiple PostHog events"
-commands.allow = ["capture_batch"]
+identifier = "allow-get-config"
+description = "Allows getting PostHog configuration for frontend initialization"
+commands.allow = ["get_config"]

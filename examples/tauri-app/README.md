@@ -29,13 +29,15 @@ This example application demonstrates the usage of the tauri-plugin-posthog plug
 ## Features
 
 This example app demonstrates:
-- Event capture with custom properties
-- User identification
-- Alias creation  
-- Anonymous events
-- Batch event capture
-- ID management (distinct ID and device ID)
-- Session reset
+- **Event capture** with custom properties
+- **User identification** with user properties
+- **Alias creation** for user identity management
+- **Feature flag testing** (enabled/value checking)
+- **Person properties** management
+- **Distinct ID** retrieval
+- **Session reset**
+
+All features use the PostHog JavaScript SDK under the hood, automatically configured from your Tauri backend.
 
 ## Recommended IDE Setup
 
