@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 \
+## [0.2.3] - 2025-09-05
+\
+
+### Other
+
+- Bump js api v0.2.2 ([71f92b8](https://github.com/ahonn/tauri-plugin-posthog/commit/71f92b8f719a82fc0bd1d4b8eb266cdbd608a695))
+\n\
 ## [0.2.2] - 2025-09-04
 \
 
