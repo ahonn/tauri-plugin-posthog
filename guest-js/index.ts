@@ -87,13 +87,13 @@ export class PostHogTauri {
    */
   static async identify(distinctId: string, properties?: any): Promise<void> {
     await this.init()
-    
+
     // First update the Rust backend state
-    await invoke('plugin:posthog|identify', { 
+    await invoke('plugin:posthog|identify', {
       distinct_id: distinctId,
-      properties: properties 
+      properties: properties
     })
-    
+
     // Then update PostHog JS SDK (but skip properties since they're handled by backend)
     posthog.identify(distinctId)
   }
@@ -113,10 +113,10 @@ export class PostHogTauri {
    */
   static async reset(): Promise<void> {
     await this.init()
-    
+
     // First reset the Rust backend state
     await invoke('plugin:posthog|reset')
-    
+
     // Then reset PostHog JS SDK
     posthog.reset()
   }
