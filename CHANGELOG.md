@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 \
+## [0.2.3] - 2025-09-24
+\
+
+### Fixed
+
+- Simplify plugin initialization by using synchronous client setup ([a075226](https://github.com/ahonn/tauri-plugin-posthog/commit/a0752269559a4fa691bceebbf8a01779dc0591b0))
+
+### Other
+
+- Simplify async block formatting in plugin setup ([8c82938](https://github.com/ahonn/tauri-plugin-posthog/commit/8c829380590699bd2d6b0bfaed42e711c0f6dab5))
+- Bump js api v0.2.2 ([71f92b8](https://github.com/ahonn/tauri-plugin-posthog/commit/71f92b8f719a82fc0bd1d4b8eb266cdbd608a695))
+\n
 ## [0.2.2] - 2025-09-04
 \
 
