@@ -3,40 +3,47 @@ use crate::models::*;
 use parking_lot::RwLock;
 use posthog_rs::{Client as PostHogClient, ClientOptionsBuilder, Event};
 use std::sync::Arc;
+use tokio::sync::OnceCell;
 
 pub struct PostHogClientWrapper {
-    client: PostHogClient,
+    client: OnceCell<PostHogClient>,
     distinct_id: Arc<RwLock<Option<String>>>,
     device_id: String,
     config: PostHogConfig,
 }
 
 impl PostHogClientWrapper {
-    pub async fn new(config: PostHogConfig) -> Result<Self> {
-        // Convert api_host to api_endpoint for the Rust client
-        let api_endpoint = if config.api_host.ends_with("/") {
-            format!("{}i/v0/e/", config.api_host)
-        } else {
-            format!("{}/i/v0/e/", config.api_host)
-        };
-
-        let client_options = ClientOptionsBuilder::default()
-            .api_key(config.api_key.clone())
-            .api_endpoint(api_endpoint)
-            .request_timeout_seconds(30) // Default timeout
-            .build()
-            .map_err(|e| crate::error::Error::ClientOptions(e.to_string()))?;
-
-        let client = posthog_rs::client(client_options).await;
+    pub fn new(config: PostHogConfig) -> Result<Self> {
         let device_id = Self::generate_device_id()?;
-
         let auto_distinct_id = Some(format!("$device:{}", device_id));
+
         Ok(Self {
-            client,
+            client: OnceCell::new(),
             distinct_id: Arc::new(RwLock::new(auto_distinct_id)),
             device_id,
             config,
         })
+    }
+
+    async fn get_client(&self) -> Result<&PostHogClient> {
+        self.client.get_or_try_init(|| async {
+            // Convert api_host to api_endpoint for the Rust client
+            let api_endpoint = if self.config.api_host.ends_with("/") {
+                format!("{}i/v0/e/", self.config.api_host)
+            } else {
+                format!("{}/i/v0/e/", self.config.api_host)
+            };
+
+            let client_options = ClientOptionsBuilder::default()
+                .api_key(self.config.api_key.clone())
+                .api_endpoint(api_endpoint)
+                .request_timeout_seconds(30) // Default timeout
+                .build()
+                .map_err(|e| crate::error::Error::ClientOptions(e.to_string()))?;
+
+            let client = posthog_rs::client(client_options).await;
+            Ok(client)
+        }).await
     }
 
     /// Generate a stable device ID using machine UID
@@ -51,6 +58,8 @@ impl PostHogClientWrapper {
     }
 
     pub async fn capture(&self, request: CaptureRequest) -> Result<()> {
+        let client = self.get_client().await?;
+
         let mut event = if request.anonymous {
             Event::new_anon(&request.event)
         } else {
@@ -90,7 +99,7 @@ impl PostHogClientWrapper {
                 .map_err(crate::error::Error::PostHogClient)?;
         }
 
-        self.client
+        client
             .capture(event)
             .await
             .map_err(crate::error::Error::PostHogClient)?;
@@ -103,11 +112,12 @@ impl PostHogClientWrapper {
 
     pub async fn alias(&self, alias: String) -> Result<()> {
         if let Some(distinct_id) = self.get_distinct_id() {
+            let client = self.get_client().await?;
             let mut event = Event::new("$create_alias", &distinct_id);
             event
                 .insert_prop("alias", alias)
                 .map_err(crate::error::Error::PostHogClient)?;
-            self.client
+            client
                 .capture(event)
                 .await
                 .map_err(crate::error::Error::PostHogClient)?;
