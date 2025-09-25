@@ -26,24 +26,26 @@ impl PostHogClientWrapper {
     }
 
     async fn get_client(&self) -> Result<&PostHogClient> {
-        self.client.get_or_try_init(|| async {
-            // Convert api_host to api_endpoint for the Rust client
-            let api_endpoint = if self.config.api_host.ends_with("/") {
-                format!("{}i/v0/e/", self.config.api_host)
-            } else {
-                format!("{}/i/v0/e/", self.config.api_host)
-            };
+        self.client
+            .get_or_try_init(|| async {
+                // Convert api_host to api_endpoint for the Rust client
+                let api_endpoint = if self.config.api_host.ends_with("/") {
+                    format!("{}i/v0/e/", self.config.api_host)
+                } else {
+                    format!("{}/i/v0/e/", self.config.api_host)
+                };
 
-            let client_options = ClientOptionsBuilder::default()
-                .api_key(self.config.api_key.clone())
-                .api_endpoint(api_endpoint)
-                .request_timeout_seconds(30) // Default timeout
-                .build()
-                .map_err(|e| crate::error::Error::ClientOptions(e.to_string()))?;
+                let client_options = ClientOptionsBuilder::default()
+                    .api_key(self.config.api_key.clone())
+                    .api_endpoint(api_endpoint)
+                    .request_timeout_seconds(30) // Default timeout
+                    .build()
+                    .map_err(|e| crate::error::Error::ClientOptions(e.to_string()))?;
 
-            let client = posthog_rs::client(client_options).await;
-            Ok(client)
-        }).await
+                let client = posthog_rs::client(client_options).await;
+                Ok(client)
+            })
+            .await
     }
 
     /// Generate a stable device ID using machine UID
